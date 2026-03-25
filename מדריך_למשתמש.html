@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claude Code — מדריך התקנה ועבודה</title>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green: #22C55E;
+      --green-dim: #16a34a;
+      --bg: #0A0A0A;
+      --surface: #111111;
+      --surface2: #1a1a1a;
+      --border: #1e1e1e;
+      --border2: #2a2a2a;
+      --text: #e5e5e5;
+      --text-dim: #aaaaaa;
+      --text-faint: #666;
+      --code-bg: #0d1117;
+      --yellow: #f9a825;
+      --red: #ef4444;
+      --blue: #3b82f6;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Heebo', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      direction: rtl;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    /* ===== PROGRESS BAR ===== */
+    .progress-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      padding: 0;
+    }
+
+    .progress-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 24px;
+      cursor: pointer;
+      transition: background 0.2s;
+      border-bottom: 3px solid transparent;
+      color: var(--text-faint);
+      font-size: 0.88rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .progress-step:hover { background: var(--surface2); color: var(--text-dim); }
+    .progress-step.active { color: var(--green); border-bottom-color: var(--green); }
+    .progress-step.completed { color: var(--text-dim); }
+    .progress-step.completed .step-circle { background: var(--green); color: #000; }
+
+    .step-circle {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: var(--border2);
+      color: var(--text-faint);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .progress-step.active .step-circle {
+      background: var(--green);
+      color: #000;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      text-align: center;
+      padding: 72px 24px 48px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-badge {
+      display: inline-block;
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: var(--green);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 900;
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+
+    .header h1 span {
+      color: var(--green);
+      position: relative;
+      display: inline-block;
+    }
+
+    @keyframes pulse-green {
+      0%, 100% { text-shadow: 0 0 8px rgba(34,197,94,0.4); }
+      50% { text-shadow: 0 0 20px rgba(34,197,94,0.7); }
+    }
+
+    .header h1 span { animation: pulse-green 2s ease-in-out infinite; }
+
+    .header p {
+      color: var(--text-dim);
+      font-size: 1.05rem;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    /* ===== OS TOGGLE ===== */
+    .os-toggle-wrap {
+      display: flex;
+      justify-content: center;
+      padding: 32px 24px 0;
+    }
+
+    .os-toggle {
+      display: flex;
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .os-btn {
+      padding: 10px 28px;
+      font-family: 'Heebo', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: var(--text-faint);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .os-btn.active {
+      background: var(--green);
+      color: #000;
+    }
+
+    .os-btn:not(.active):hover { color: var(--text); background: var(--surface2); }
+
+    /* ===== MAIN CONTENT ===== */
+    .content { max-width: 780px; margin: 0 auto; padding: 0 24px 80px; }
+
+    /* ===== INTRO BOX ===== */
+    .intro-box {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-right: 4px solid var(--green);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin: 40px 0;
+      color: var(--text-dim);
+      font-size: 0.97rem;
+      line-height: 1.8;
+    }
+
+    /* ===== STEP SECTION ===== */
+    .step-section {
+      margin: 56px 0;
+      scroll-margin-top: 60px;
+    }
+
+    .step-title-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 6px;
+    }
+
+    .step-badge {
+      background: var(--green);
+      color: #000;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+
+    .step-section h2 {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .step-section .step-desc {
+      color: var(--text-dim);
+      margin-top: 6px;
+      margin-bottom: 28px;
+      font-size: 0.97rem;
+    }
+
+    /* ===== SUB-HEADERS ===== */
+    .step-section h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 28px 0 12px;
+    }
+
+    .step-section h4 {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      margin: 20px 0 8px;
+    }
+
+    /* ===== CODE BLOCK ===== */
+    .code-wrap {
+      position: relative;
+      margin: 14px 0;
+    }
+
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      padding: 18px 20px;
+      padding-left: 60px; /* space for copy btn on LTR side */
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      direction: ltr;
+      text-align: left;
+      color: #a8d8ea;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .copy-btn {
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 6px;
+      color: var(--text-faint);
+      font-family: 'Heebo', sans-serif;
+      font-size: 0.75rem;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .copy-btn:hover { background: var(--green); color: #000; border-color: var(--green); }
+    .copy-btn.copied { background: var(--green); color: #000; border-color: var(--green); }
+
+    /* ===== ALERTS ===== */
+    .alert {
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin: 16px 0;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 0.93rem;
+    }
+
+    .alert-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+    .alert-body { flex: 1; }
+    .alert-body strong { display: block; margin-bottom: 3px; }
+
+    .alert-success {
+      background: rgba(34,197,94,0.08);
+      border: 1px solid rgba(34,197,94,0.25);
+      border-right: 4px solid var(--green);
+      color: #86efac;
+    }
+
+    .alert-warn {
+      background: rgba(249,168,37,0.08);
+      border: 1px solid rgba(249,168,37,0.25);
+      border-right: 4px solid var(--yellow);
+      color: #fcd34d;
+    }
+
+    .alert-info {
+      background: rgba(59,130,246,0.08);
+      border: 1px solid rgba(59,130,246,0.25);
+      border-right: 4px solid var(--blue);
+      color: #93c5fd;
+    }
+
+    .alert-danger {
+      background: rgba(239,68,68,0.08);
+      border: 1px solid rgba(239,68,68,0.25);
+      border-right: 4px solid var(--red);
+      color: #fca5a5;
+    }
+
+    /* ===== ORDERED STEPS ===== */
+    .instruction-steps { list-style: none; padding: 0; margin: 12px 0; }
+
+    .instruction-steps li {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+
+    .inst-num {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      color: var(--green);
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .inst-body { flex: 1; color: var(--text-dim); font-size: 0.95rem; }
+    .inst-body strong { color: var(--text); }
+
+    /* ===== KBD ===== */
+    kbd {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      color: var(--green);
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-family: monospace;
+      font-size: 0.85rem;
+    }
+
+    /* ===== OPTION TABS ===== */
+    .option-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .opt-badge {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 5px 14px;
+      border-radius: 20px;
+    }
+
+    .opt-badge.recommended {
+      background: rgba(34,197,94,0.12);
+      border-color: rgba(34,197,94,0.3);
+      color: var(--green);
+    }
+
+    /* ===== DIVIDER ===== */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 40px 0;
+    }
+
+    /* ===== CHECKLIST ===== */
+    .checklist-wrap { margin: 20px 0; }
+
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .check-item:hover { border-color: var(--green); background: var(--surface2); }
+    .check-item.checked { border-color: var(--green); opacity: 0.65; }
+
+    .check-box-ui {
+      width: 22px; height: 22px;
+      border: 2px solid var(--border2);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s;
+      font-size: 0.85rem;
+      color: transparent;
+    }
+
+    .check-item.checked .check-box-ui {
+      background: var(--green);
+      border-color: var(--green);
+      color: #000;
+    }
+
+    .check-label { color: var(--text-dim); font-size: 0.95rem; }
+    .check-item.checked .check-label { text-decoration: line-through; color: var(--text-faint); }
+
+    .completion-banner {
+      display: none;
+      background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(34,197,94,0.05));
+      border: 1px solid rgba(34,197,94,0.4);
+      border-radius: 12px;
+      padding: 20px 24px;
+      text-align: center;
+      margin-top: 20px;
+      color: var(--green);
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+
+    /* ===== TROUBLESHOOTING ===== */
+    .troubleshoot-section { margin: 56px 0; }
+
+    .troubleshoot-section > h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+
+    .faq-item {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+
+    .faq-toggle {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-family: 'Heebo', sans-serif;
+      font-size: 0.97rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: right;
+      transition: background 0.2s;
+    }
+
+    .faq-toggle:hover { background: var(--surface2); }
+
+    .faq-arrow {
+      color: var(--text-faint);
+      font-size: 0.75rem;
+      transition: transform 0.25s;
+      flex-shrink: 0;
+      margin-right: 10px;
+    }
+
+    .faq-item.open .faq-arrow { transform: rotate(180deg); color: var(--green); }
+
+    .faq-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .faq-body-inner {
+      padding: 0 20px 20px;
+      color: var(--text-dim);
+      font-size: 0.93rem;
+      line-height: 1.75;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+    }
+
+    .faq-item.open .faq-body { max-height: 1000px; }
+
+    /* ===== OS VISIBILITY ===== */
+    .mac-only { display: none; }
+    .win-only { display: none; }
+    body.os-mac .mac-only { display: block; }
+    body.os-win .win-only { display: block; }
+    body.os-mac .mac-only.inline-block { display: inline-block; }
+    body.os-win .win-only.inline-block { display: inline-block; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 600px) {
+      .header { padding: 48px 16px 32px; }
+      .header h1 { font-size: 1.6rem; }
+      .progress-step { padding: 12px 12px; font-size: 0.78rem; gap: 6px; }
+      .content { padding: 0 16px 60px; }
+      .step-section h2 { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body class="os-win">
+
+<!-- PROGRESS BAR -->
+<nav class="progress-bar" id="progress-bar">
+  <div class="progress-step active" data-step="1" onclick="scrollToStep(1)">
+    <div class="step-circle">1</div> Node.js
+  </div>
+  <div class="progress-step" data-step="2" onclick="scrollToStep(2)">
+    <div class="step-circle">2</div> Git
+  </div>
+  <div class="progress-step" data-step="3" onclick="scrollToStep(3)">
+    <div class="step-circle">3</div> Claude Code
+  </div>
+  <div class="progress-step" data-step="4" onclick="scrollToStep(4)">
+    <div class="step-circle">4</div> בדיקה
+  </div>
+  <div class="progress-step" data-step="5" onclick="scrollToStep(5)">
+    <div class="step-circle">5</div> מדריך מעמיק
+  </div>
+</nav>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-badge">CLAUDE CODE FOR FINANCIAL SERVICES</div>
+  <h1>מדריך <span>התקנה ועבודה</span></h1>
+  <p>עקבו אחרי השלבים — ותגיעו למפגש מוכנים לחלוטין לעבוד.</p>
+</header>
+
+<!-- OS TOGGLE -->
+<div class="os-toggle-wrap">
+  <div class="os-toggle">
+    <button class="os-btn" id="btn-mac" onclick="setOS('mac')">
+      <span>🍎</span> Mac
+    </button>
+    <button class="os-btn active" id="btn-win" onclick="setOS('win')">
+      <span>🪟</span> Windows
+    </button>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <div class="intro-box">
+    היי, כדי שנוכל לנצל את זמן המפגש ולצלול ישר לעבודה — אשמח אם תוכלו להתקין את Claude Code לפני שנפגש.
+    המדריך קצר ופשוט. ואם זה מרגיש טכני מדי — זה בסדר לגמרי. רוב השלבים הם פשוט "לחצו הורדה והתקינו".
+    לא צריך להבין מה קורה מאחורי הקלעים — רק לעקוב.
+  </div>
+
+  <!-- ===== STEP 1: NODE.JS ===== -->
+  <section class="step-section" id="step-1">
+    <div class="step-title-row">
+      <div class="step-badge">שלב 1</div>
+      <h2>התקנת Node.js</h2>
+    </div>
+    <p class="step-desc">Node.js הוא הבסיס ש-Claude Code רץ עליו. צריך גרסה 18 ומעלה.</p>
+
+    <!-- Windows -->
+    <div class="win-only">
+      <div class="option-tabs">
+        <span class="opt-badge recommended">אפשרות א׳ — הורדה ישירה (מומלץ)</span>
+      </div>
+      <p style="color:var(--text-dim);font-size:.95rem;margin-bottom:14px;">
+        נכנסים לאתר הרשמי: <a href="https://nodejs.org/en" target="_blank" style="color:var(--green);">nodejs.org</a> — לחצו על הכפתור הגדול <strong style="color:var(--text);">Get Node.js</strong>, הורידו את קובץ ה-.msi והריצו אותו.
+      </p>
+      <div class="alert alert-warn">
+        <span class="alert-icon">⚠️</span>
+        <div class="alert-body">
+          <strong>חשוב</strong>
+          במהלך ההתקנה, ודאו שהאפשרות <strong>Add to PATH</strong> מסומנת. בלי זה, הטרמינל לא יזהה את הפקודות.
+        </div>
+      </div>
+
+      <h4>איך פותחים PowerShell ב-Windows?</h4>
+      <ul class="instruction-steps">
+        <li><div class="inst-num">1</div><div class="inst-body">לחצו על מקש <kbd>Windows</kbd> במקלדת (או תפריט Start בפינה השמאלית למטה)</div></li>
+        <li><div class="inst-num">2</div><div class="inst-body">כתבו <strong>PowerShell</strong></div></li>
+        <li><div class="inst-num">3</div><div class="inst-body">לחצו <kbd>Enter</kbd> — ייפתח חלון כחול/שחור. זה הטרמינל שנעבוד בו.</div></li>
+      </ul>
+
+      <h4>בדיקה — הקלידו בטרמינל:</h4>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copyCode(this)">העתק</button>
+        <div class="code-block cmd">node --version</div>
+      </div>
+      <div class="alert alert-success">
+        <span class="alert-icon">✓</span>
+        <div class="alert-body">אם מופיע מספר גרסה כמו <code>v22.x.x</code> (18 ומעלה) — עברתם את השלב הזה.</div>
+      </div>
+    </div>
+
+    <!-- Mac -->
+    <div class="mac-only">
+      <div class="option-tabs">
+        <span class="opt-badge recommended">אפשרות א׳ — הורדה ישירה (מומלץ למתחילים)</span>
+        <span class="opt-badge">אפשרות ב׳ — Homebrew</span>
+      </div>
+      <p style="color:var(--text-dim);font-size:.95rem;margin-bottom:14px;">
+        נכנסים לאתר הרשמי: <a href="https://nodejs.org/en" target="_blank" style="color:var(--green);">nodejs.org</a> — לחצו על הכפתור <strong style="color:var(--text);">Get Node.js</strong> (הכפתור הגדול באמצע).
+      </p>
+
+      <h4>אפשרות ב׳ — דרך Homebrew (למי שמכיר)</h4>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copyCode(this)">העתק</button>
+        <div class="code-block cmd">brew install node</div>
+      </div>
+
+      <h4>איך פותחים Terminal ב-Mac?</h4>
+      <ul class="instruction-steps">
+        <li><div class="inst-num">1</div><div class="inst-body">לחצו <kbd>Cmd</kbd> + <kbd>Space</kbd> — ייפתח Spotlight</div></li>
+        <li><div class="inst-num">2</div><div class="inst-body">כתבו <strong>Terminal</strong></div></li>
+        <li><div class="inst-num">3</div><div class="inst-body">לחצו <kbd>Enter</kbd> — ייפתח חלון שחור. זה הטרמינל שנעבוד בו.</div></li>
+      </ul>
+
+      <h4>בדיקה — הקלידו בטרמינל:</h4>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copyCode(this)">העתק</button>
+        <div class="code-block cmd">node --version</div>
+      </div>
+      <div class="alert alert-success">
+        <span class="alert-icon">✓</span>
+        <div class="alert-body">אם מופיע מספר גרסה כמו <code>v22.x.x</code> (18 ומעלה) — עברתם את השלב הזה.</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ===== STEP 2: GIT ===== -->
+  <section class="step-section" id="step-2">
+    <div class="step-title-row">
+      <div class="step-badge">שלב 2</div>
+      <h2>התקנת Git</h2>
+    </div>
+    <p class="step-desc">Git הוא כלי לניהול גרסאות — כמו "Undo" חכם לפרויקט שלם. לא צריך ללמוד אותו עכשיו, רק להתקין. Claude Code משתמש בו ברקע.</p>
+
+    <!-- Windows -->
+    <div class="win-only">
+      <p style="color:var(--text-dim);font-size:.95rem;margin-bottom:14px;">
+        הורידו מהאתר הרשמי: <a href="https://git-scm.com/download/win" target="_blank" style="color:var(--green);">git-scm.com</a> — הריצו את ההתקנה עם הגדרות ברירת מחדל.
+      </p>
+      <div class="alert alert-warn">
+        <span class="alert-icon">⚠️</span>
+        <div class="alert-body">
+          <strong>חשוב</strong>
+          במסך <strong>Adjusting your PATH</strong> — בחרו באפשרות <strong>"Git from the command line and also from 3rd-party software"</strong>.
+        </div>
+      </div>
+      <h4>בדיקה — הקלידו בטרמינל:</h4>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copyCode(this)">העתק</button>
+        <div class="code-block cmd">git --version</div>
+      </div>
+      <div class="alert alert-success">
+        <span class="alert-icon">✓</span>
+        <div class="alert-body">צריך להופיע מספר גרסה כמו <code>git version 2.x.x</code></div>
+      </div>
+    </div>
+
+    <!-- Mac -->
+    <div class="mac-only">
+      <p style="color:var(--text-dim);font-size:.95rem;margin-bottom:14px;">
+        ב-Mac רוב הסיכויים ש-Git כבר קיים. בדקו בטרמינל:
+      </p>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copyCode(this)">העתק</button>
+        <div class="code-block cmd">git --version</div>
+      </div>
+      <div class="alert alert-info">
+        <span class="alert-icon">ℹ️</span>
+        <div class="alert-body">אם מופיעה הודעה על התקנת <strong>Command Line Tools</strong> — אשרו את ההתקנה וחכו שתסתיים. זה תקין.</div>
+      </div>
+      <div class="alert alert-success">
+        <span class="alert-icon">✓</span>
+        <div class="alert-body">צריך להופיע מספר גרסה כמו <code>git version 2.x.x</code></div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ===== STEP 3: CLAUDE CODE ===== -->
+  <section class="step-section" id="step-3">
+    <div class="step-title-row">
+      <div class="step-badge">שלב 3</div>
+      <h2>התקנת Claude Code</h2>
+    </div>
+    <p class="step-desc">זה הסוכן עצמו. ההתקנה לוקחת דקה.</p>
+
+    <h3>דרישה מקדימה: מנוי Claude</h3>
+    <p style="color:var(--text-dim);font-size:.95rem;margin-bottom:12px;">
+      צריך מנוי פעיל ב-<a href="https://claude.ai" target="_blank" style="color:var(--green);">claude.ai</a> — תוכנית <strong style="color:var(--text);">Pro</strong> ($20/חודש) או <strong style="color:var(--text);">Max</strong> ($100/חודש).
+    </p>
+    <div class="alert alert-info">
+      <span class="alert-icon">ℹ️</span>
+      <div class="alert-body">
+        אם עדיין אין לכם מנוי — <a href="https://claude.ai" target="_blank" style="color:var(--blue);">הירשמו כאן</a>. בחרו בתוכנית Pro ($20/חודש).
+      </div>
+    </div>
+
+    <h3>התקנה</h3>
+    <p style="color:var(--text-dim);font-size:.95rem;margin-bottom:12px;">
+      בטרמינל שכבר פתוח (מהשלב הקודם), הקלידו והקישו Enter:
+    </p>
+    <div class="code-wrap">
+      <button class="copy-btn" onclick="copyCode(this)">העתק</button>
+      <div class="code-block cmd">npm install -g @anthropic-ai/claude-code</div>
+    </div>
+
+    <!-- Windows permissions warning -->
+    <div class="win-only">
+      <div class="alert alert-warn">
+        <span class="alert-icon">⚠️</span>
+        <div class="alert-body">
+          <strong>ב-Windows</strong>: אם מופיעה שגיאת הרשאות — פתחו את PowerShell כ-<strong>Run as Administrator</strong> ונסו שוב.
+        </div>
+      </div>
+    </div>
+
+    <!-- Mac permissions warning -->
+    <div class="mac-only">
+      <div class="alert alert-warn">
+        <span class="alert-icon">⚠️</span>
+        <div class="alert-body">
+          <strong>ב-Mac</strong>: אם מופיעה שגיאת הרשאות — הוסיפו <code>sudo</code> לפני הפקודה. המערכת תבקש את הסיסמה שלכם.
+        </div>
+      </div>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copyCode(this)">העתק</button>
+        <div class="code-block cmd">sudo npm install -g @anthropic-ai/claude-code</div>
+      </div>
+    </div>
+
+    <h3>הפעלה ראשונה</h3>
+    <p style="color:var(--text-dim);font-size:.95rem;margin-bottom:12px;">
+      אחרי ההתקנה, הקלידו את הפקודות הבאות שורה אחרי שורה, Enter אחרי כל אחת:
+    </p>
+
+    <!-- Windows first run -->
+    <div class="win-only">
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copyCode(this)">העתק</button>
+        <div class="code-block cmd">mkdir %USERPROFILE%\my-first-project
+cd %USERPROFILE%\my-first-project
+claude</div>
+      </div>
+    </div>
+
+    <!-- Mac first run -->
+    <div class="mac-only">
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copyCode(this)">העתק</button>
+        <div class="code-block cmd">mkdir ~/my-first-project
+cd ~/my-first-project
+claude</div>
+      </div>
+    </div>
+
+    <div class="alert alert-info">
+      <span class="alert-icon">ℹ️</span>
+      <div class="alert-body">בפעם הראשונה — ייפתח דפדפן לאימות עם חשבון Claude שלכם. אשרו את החיבור. אם הדפדפן לא נפתח אוטומטית — חפשו בטרמינל קישור (URL) והעתיקו אותו ידנית לדפדפן.</div>
+    </div>
+
+    <div class="alert alert-success">
+      <span class="alert-icon">🚀</span>
+      <div class="alert-body">
+        <strong>רואים את המסך של Claude Code בטרמינל? מעולה — זה עובד!</strong>
+        מעכשיו, בכל פעם שתפתחו טרמינל ותנווטו לתיקייה שלכם, פשוט כתבו <code>claude</code> ואתם בפנים.
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ===== STEP 4: VERIFICATION ===== -->
+  <section class="step-section" id="step-4">
+    <div class="step-title-row">
+      <div class="step-badge">שלב 4</div>
+      <h2>בדיקה סופית</h2>
+    </div>
+    <p class="step-desc">ודאו שהכל עובד לפני המפגש. סמנו כל שלב שהשלמתם.</p>
+
+    <div class="checklist-wrap" id="checklist">
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box-ui">✓</div>
+        <span class="check-label">Node.js מותקן (גרסה 18 ומעלה)</span>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box-ui">✓</div>
+        <span class="check-label">Git מותקן</span>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box-ui">✓</div>
+        <span class="check-label">יש מנוי Claude פעיל (Pro / Max)</span>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box-ui">✓</div>
+        <span class="check-label">Claude Code מותקן (<code>claude</code> עובד בטרמינל)</span>
+      </div>
+    </div>
+
+    <div class="completion-banner" id="completion-banner">
+      🎉 כל הסימונים מלאים? מעולה — אתם מוכנים למפגש!
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ===== TROUBLESHOOTING ===== -->
+  <section class="troubleshoot-section" id="troubleshoot">
+    <h2>❓ תקלות נפוצות</h2>
+    <p style="color:var(--text-dim);margin-bottom:20px;font-size:.95rem;">נתקלתם בבעיה? כנראה שמישהו כבר עבר את זה. הנה הפתרונות:</p>
+
+    <div class="faq-item">
+      <button class="faq-toggle" onclick="toggleFaq(this)">
+        <span>"node" / "npm" is not recognized</span>
+        <span class="faq-arrow">▼</span>
+      </button>
+      <div class="faq-body">
+        <div class="faq-body-inner">
+          <strong style="color:var(--text);">הסיבה:</strong> Node.js לא נוסף ל-PATH של המערכת.
+          <br/><br/>
+          <strong style="color:var(--text);">פתרון ל-Windows:</strong>
+          <ul style="padding-right:18px;margin-top:8px;color:var(--text-dim);">
+            <li>סגרו את הטרמינל לגמרי</li>
+            <li>הריצו מחדש את ההתקנה של Node.js</li>
+            <li>ודאו שהאפשרות "Add to PATH" מסומנת</li>
+            <li>פתחו טרמינל חדש ונסו שוב</li>
+          </ul>
+          <br/>
+          <strong style="color:var(--text);">פתרון ל-Mac:</strong> הפעילו מחדש את הטרמינל. אם לא עוזר — הריצו מחדש את ההתקנה מ-nodejs.org.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-toggle" onclick="toggleFaq(this)">
+        <span>שגיאת הרשאות (Permission denied / EACCES)</span>
+        <span class="faq-arrow">▼</span>
+      </button>
+      <div class="faq-body">
+        <div class="faq-body-inner">
+          <strong style="color:var(--text);">ב-Windows:</strong> פתחו PowerShell כ-Administrator (קליק ימני — "Run as Administrator").
+          <br/><br/>
+          <strong style="color:var(--text);">ב-Mac:</strong> הוסיפו <code>sudo</code> לפני הפקודה:
+          <div class="code-wrap" style="margin-top:10px;">
+            <button class="copy-btn" onclick="copyCode(this)">העתק</button>
+            <div class="code-block cmd">sudo npm install -g @anthropic-ai/claude-code</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-toggle" onclick="toggleFaq(this)">
+        <span>"claude" is not recognized</span>
+        <span class="faq-arrow">▼</span>
+      </button>
+      <div class="faq-body">
+        <div class="faq-body-inner">
+          <strong style="color:var(--text);">פתרון 1:</strong> סגרו את כל חלונות הטרמינל ופתחו מחדש.
+          <br/><br/>
+          <strong style="color:var(--text);">פתרון 2 (Windows):</strong> ודאו ש-npm global נמצא ב-PATH:
+          <div class="code-wrap" style="margin-top:10px;">
+            <button class="copy-btn" onclick="copyCode(this)">העתק</button>
+            <div class="code-block cmd">npm config get prefix</div>
+          </div>
+          העתיקו את הנתיב שמופיע והוסיפו אותו ל-PATH של המערכת.
+          <br/><br/>
+          <strong style="color:var(--text);">פתרון 3:</strong> התקינו מחדש:
+          <div class="code-wrap" style="margin-top:10px;">
+            <button class="copy-btn" onclick="copyCode(this)">העתק</button>
+            <div class="code-block cmd">npm uninstall -g @anthropic-ai/claude-code
+npm install -g @anthropic-ai/claude-code</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-toggle" onclick="toggleFaq(this)">
+        <span>PowerShell חוסם הרצת סקריפטים (Windows)</span>
+        <span class="faq-arrow">▼</span>
+      </button>
+      <div class="faq-body">
+        <div class="faq-body-inner">
+          Windows חוסם הרצת סקריפטים מטעמי אבטחה. פתחו PowerShell כ-Administrator והריצו:
+          <div class="code-wrap" style="margin-top:10px;">
+            <button class="copy-btn" onclick="copyCode(this)">העתק</button>
+            <div class="code-block cmd">Set-ExecutionPolicy RemoteSigned -Scope CurrentUser</div>
+          </div>
+          אשרו עם <kbd>Y</kbd> ונסו שוב.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-toggle" onclick="toggleFaq(this)">
+        <span>הדפדפן לא נפתח לאימות</span>
+        <span class="faq-arrow">▼</span>
+      </button>
+      <div class="faq-body">
+        <div class="faq-body-inner">
+          כש-Claude Code רץ בפעם הראשונה, הוא צריך לפתוח דפדפן לאימות.
+          <br/><br/>
+          אם הדפדפן לא נפתח אוטומטית — חפשו בטרמינל קישור (URL שמתחיל ב-https://) והעתיקו אותו ידנית לדפדפן.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-toggle" onclick="toggleFaq(this)">
+        <span>Claude Code עובד — אבל אני לא יודע מה לכתוב לו</span>
+        <span class="faq-arrow">▼</span>
+      </button>
+      <div class="faq-body">
+        <div class="faq-body-inner">
+          זה בדיוק מה שנעבוד עליו במפגש. אבל כדי להתחיל — נסו לכתוב לו בדיוק מה אתם צריכים, בעברית, כאילו אתם מסבירים לעמית.
+          <br/><br/>
+          לדוגמה: <em>"יש לי קובץ Excel בשם דוח_ינואר.xlsx. אני צריך שתנקה את הנתונים — תסיר שורות ריקות ותתקן תאריכים לפורמט DD/MM/YYYY."</em>
+          <br/><br/>
+          בקובץ <strong>core.md</strong> בתיקיית הפרויקט שלכם תמצאו פרומפטים מוכנים לכל המשימות הנפוצות.
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== STEP 5: DEEP GUIDE ===== -->
+  <hr class="divider" />
+  <section class="step-section" id="step-5">
+    <div class="step-title-row">
+      <div class="step-badge">מדריך מעמיק</div>
+      <h2>עבודה חכמה עם Claude Code</h2>
+    </div>
+    <p class="step-desc">טכניקות מתקדמות, כלים מובנים, ומה שהצוות של Anthropic עצמו משתמש בו ביומיום.</p>
+
+    <!-- ===== 5.1 DAILY WORKFLOW ===== -->
+    <h3>פקודות יומיומיות — מה שצריך לדעת</h3>
+    <p style="color:var(--text-dim);font-size:.95rem;margin-bottom:16px;">
+      Claude Code עובד בטרמינל. כל session מתחיל ב-<code>claude</code> בתוך תיקיית הפרויקט. אלה הפקודות הבסיסיות שתשתמשו בהן כל יום:
+    </p>
+
+    <div style="display:grid;gap:10px;margin-bottom:24px;">
+      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:14px 18px;display:flex;gap:16px;align-items:flex-start;">
+        <kbd style="flex-shrink:0;margin-top:2px;">/help</kbd>
+        <span style="color:var(--text-dim);font-size:.93rem;">הצגת כל הפקודות הזמינות</span>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:14px 18px;display:flex;gap:16px;align-items:flex-start;">
+        <kbd style="flex-shrink:0;margin-top:2px;">/clear</kbd>
+        <span style="color:var(--text-dim);font-size:.93rem;">ניקוי ההיסטוריה — מתחילים שיחה חדשה. חשוב כש-Claude "שוכח" מה הבקשה המקורית.</span>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:14px 18px;display:flex;gap:16px;align-items:flex-start;">
+        <kbd style="flex-shrink:0;margin-top:2px;">/exit</kbd>
+        <span style="color:var(--text-dim);font-size:.93rem;">יציאה מ-Claude Code</span>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:14px 18px;display:flex;gap:16px;align-items:flex-start;">
+        <kbd style="flex-shrink:0;margin-top:2px;">Escape</kbd>
+        <span style="color:var(--text-dim);font-size:.93rem;">עצירת פעולה שרצה — Claude יפסיק ויחכה להנחיה הבאה שלכם</span>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:14px 18px;display:flex;gap:16px;align-items:flex-start;">
+        <kbd style="flex-shrink:0;margin-top:2px;">↑ Up arrow</kbd>
+        <span style="color:var(--text-dim);font-size:.93rem;">הצגת ההודעה הקודמת לעריכה מחדש</span>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:14px 18px;display:flex;gap:16px;align-items:flex-start;">
+        <kbd style="flex-shrink:0;margin-top:2px;">Shift + Tab</kbd>
+        <span style="color:var(--text-dim);font-size:.93rem;"><strong style="color:var(--text);">Plan Mode</strong> — Claude מציג תוכנית לפני שמבצע. ראו הסבר מפורט בהמשך.</span>
+      </div>
+    </div>
+
+    <div class="alert alert-info">
+      <span class="alert-icon">💡</span>
+      <div class="alert-body">
+        <strong>כלל זהב — כשClaude הולך לכיוון לא נכון:</strong>
+        לחצו Escape, כתבו "<em>עצור. בואו נגדיר מחדש מה צריך לעשות</em>" — ותנו לו הנחיה ברורה יותר. עדיף לעצור מוקדם מאשר לחכות לסוף ולתקן הכל.
+      </div>
+    </div>
+
+    <hr class="divider" style="margin:32px 0;" />
+
+    <!-- ===== 5.2 CLAUDE.MD ===== -->
+    <h3>CLAUDE.md — הזיכרון הקבוע של הפרויקט</h3>
+    <p style="color:var(--text-dim);font-size:.95rem;margin-bottom:16px;">
+      זה הכלי הכי חזק שיש. <code>CLAUDE.md</code> הוא קובץ טקסט שיושב בשורש הפרויקט שלכם —
+      Claude קורא אותו <strong style="color:var(--text);">בכל session מחדש, אוטומטית</strong>.
+      כל מה שתכתבו שם הופך ל"הוראות קבועות" שלא צריך לחזור עליהן כל פעם.
+    </p>
+
+    <div class="alert alert-success">
+      <span class="alert-icon">✓</span>
+      <div class="alert-body">
+        <strong>מה כותבים ב-CLAUDE.md?</strong>
+        <ul style="padding-right:18px;margin-top:8px;color:var(--text-dim);">
+          <li>מי אתם ומה הפרויקט עושה (הקשר)</li>
+          <li>כללי קוד: שפה, סגנון, ספריות שמשתמשים בהן</li>
+          <li>מבנה תיקיות — מה נמצא איפה</li>
+          <li>מה <strong>לא</strong> לעשות — החלטות שכבר התקבלו</li>
+          <li>איפה לחפש קבצים, שמות שכבות, API endpoints</li>
+          <li>כללי עבודה מיוחדים לעסק שלכם (למשל: "תמיד deliverable standalone")</li>
+        </ul>
+      </div>
+    </div>
+
+    <h4>דוגמה — CLAUDE.md בסיסי לפרויקט Excel</h4>
+    <div class="code-wrap">
+      <button class="copy-btn" onclick="copyCode(this)">העתק</button>
+      <div class="code-block"># Project: Financial Reporting Tools
+
+## Context
+We build Excel automation for financial institutions.
+Deliverables must be standalone — no external connections.
+
+## Standards
+- VBA: no .Select/.Activate, always error handling, comments in Hebrew
+- Formulas: prefer XLOOKUP over VLOOKUP
+- Naming: ClientName_ReportType_YYYY-MM.xlsx
+
+## Folder Structure
+/clients/[name]/data/    — read-only source files
+/clients/[name]/output/  — final deliverables
+/internal/templates/     — firm templates
+
+## Hard Rules
+- Never connect to live client systems
+- All macros must work fully offline</div>
+    </div>
+
+    <h4>איך יוצרים את הקובץ?</h4>
+    <p style="color:var(--text-dim);font-size:.95rem;margin-bottom:10px;">
+      פשוט בקשו מ-Claude: <em>"צור לי קובץ CLAUDE.md לפרויקט הזה לפי מה שאתה יודע עלינו"</em> — ואז ערכו לפי הצורך. אפשר גם לכתוב בעברית מלאה.
+    </p>
+
+    <div class="alert alert-warn">
+      <span class="alert-icon">⚠️</span>
+      <div class="alert-body">
+        <strong>CLAUDE.md הוא חי</strong> — עדכנו אותו כשהפרויקט משתנה. Claude יודע רק מה שכתוב שם. אם משהו חשוב לא כתוב — הוא לא יידע.
+      </div>
+    </div>
+
+    <hr class="divider" style="margin:32px 0;" />
+
+    <!-- ===== 5.3 PLAN MODE ===== -->
+    <h3>Plan Mode — לתכנן לפני לבצע</h3>
+    <p style="color:var(--text-dim);font-size:.95rem;margin-bottom:16px;">
+      לפני שתלחצו Enter על משימה גדולה — לחצו <kbd>Shift</kbd>+<kbd>Tab</kbd>.
+      Claude יכנס ל-<strong style="color:var(--text);">מצב תכנון</strong>: הוא יציג תוכנית מפורטת של מה שהוא עומד לעשות — מבלי לבצע כלום.
+    </p>
+
+    <ul class="instruction-steps">
+      <li>
+        <div class="inst-num">1</div>
+        <div class="inst-body">כתבו את הבקשה כרגיל (לא תלחצו Enter עדיין)</div>
+      </li>
+      <li>
+        <div class="inst-num">2</div>
+        <div class="inst-body">לחצו <kbd>Shift</kbd>+<kbd>Tab</kbd> — תראו את סמל המצב משתנה</div>
+      </li>
+      <li>
+        <div class="inst-num">3</div>
+        <div class="inst-body">לחצו Enter — Claude מציג תוכנית פעולה מפורטת</div>
+      </li>
+      <li>
+        <div class="inst-num">4</div>
+        <div class="inst-body">קראו, תקנו אם צריך, ואשרו — רק אז הוא מתחיל לעבוד</div>
+      </li>
+    </ul>
+
+    <div class="alert alert-success">
+      <span class="alert-icon">✓</span>
+      <div class="alert-body">
+        <strong>מתי להשתמש ב-Plan Mode?</strong>
+        <ul style="padding-right:18px;margin-top:6px;color:var(--text-dim);">
+          <li>לפני שינויים גדולים בקוד קיים</li>
+          <li>כשהמשימה נוגעת בכמה קבצים</li>
+          <li>כשאתם לא בטוחים איך Claude יפרש את הבקשה</li>
+          <li>לפני מחיקות או שינויי מבנה</li>
+        </ul>
+      </div>
+    </div>
+
+    <hr class="divider" style="margin:32px 0;" />
+
+    <!-- ===== 5.4 MULTIPLE INSTANCES ===== -->
+    <h3>כמה Instances במקביל — עבודה מרובה חזיתות</h3>
+    <p style="color:var(--text-dim);font-size:.95rem;margin-bottom:16px;">
+      אפשר לפתוח כמה חלונות טרמינל עם Claude Code במקביל — כל אחד על משימה שונה.
+      זה כמו לעבוד עם כמה עוזרים בו-זמנית.
+    </p>
+
+    <h4>שימוש בסיסי — כמה תיקיות</h4>
+    <div class="code-wrap">
+      <button class="copy-btn" onclick="copyCode(this)">העתק</button>
+      <div class="code-block"># חלון 1 — עבודה על לקוח א׳
+cd ~/clients/client-a && claude
+
+# חלון 2 — עבודה על לקוח ב׳ (בו-זמנית)
+cd ~/clients/client-b && claude
+
+# חלון 3 — בדיקת תוצאות ועריכה ידנית
+cd ~/internal/templates && claude</div>
+    </div>
+
+    <h4>שימוש מתקדם — Git Worktrees</h4>
+    <p style="color:var(--text-dim);font-size:.95rem;margin-bottom:10px;">
+      ב-Git, worktrees מאפשרות לבדוק כמה branches בו-זמנית בתיקיות שונות — כל instance של Claude עובד על branch נפרד, ואי אפשר שהם יתנגשו.
+    </p>
+    <div class="code-wrap">
+      <button class="copy-btn" onclick="copyCode(this)">העתק</button>
+      <div class="code-block"># יצירת worktree נוספת (branch חדש בתיקייה חדשה)
+git worktree add ../project-feature-x feature-x
+
+# פתיחת Claude בתיקייה החדשה
+cd ../project-feature-x && claude</div>
+    </div>
+
+    <div class="alert alert-info">
+      <span class="alert-icon">💡</span>
+      <div class="alert-body">
+        <strong>טיפ מהצוות של Anthropic:</strong> instance אחד מפתח קוד, instance שני כותב תיעוד, instance שלישי כותב בדיקות — כולם במקביל. משלשים פרודוקטיביות.
+      </div>
+    </div>
+
+    <hr class="divider" style="margin:32px 0;" />
+
+    <!-- ===== 5.5 ANTHROPIC TIPS ===== -->
+    <h3>איך הצוות של Anthropic עצמו משתמש — טיפים מהשטח</h3>
+
+    <div style="display:grid;gap:12px;margin-bottom:24px;">
+      <div style="background:var(--surface);border:1px solid var(--border2);border-right:4px solid var(--green);border-radius:10px;padding:16px 20px;">
+        <strong style="color:var(--text);display:block;margin-bottom:6px;">תנו הקשר עשיר בהתחלה</strong>
+        <span style="color:var(--text-dim);font-size:.93rem;">לפני כל משימה: אמרו ל-Claude מה הפרויקט, מה הקובץ, ומה המטרה הסופית. "Claude פותח קובץ בשבילי" עמום מדי. "Claude, יש לי workbook של ריצול חודשי עם sheet ב׳ sheets — Budget וActuals. אני צריך להשוות ולסמן חריגות מעל 10%" — זה עובד.</span>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border2);border-right:4px solid var(--green);border-radius:10px;padding:16px 20px;">
+        <strong style="color:var(--text);display:block;margin-bottom:6px;">אמון אבל בדיקה — "Trust but Verify"</strong>
+        <span style="color:var(--text-dim);font-size:.93rem;">Claude עלול לטעות. תמיד בדקו את הפלט לפני שאתם שולחים ללקוח. זה נכון במיוחד לחישובים מורכבים, נוסחאות, ולוגיקה עסקית ספציפית. בקשו ממנו לבדוק את עצמו: "עבור על מה שכתבת ותוודא שאין שגיאות לוגיקה".</span>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border2);border-right:4px solid var(--green);border-radius:10px;padding:16px 20px;">
+        <strong style="color:var(--text);display:block;margin-bottom:6px;">משימות גדולות — פרקו לחתיכות</strong>
+        <span style="color:var(--text-dim);font-size:.93rem;">במקום "בנה לי dashboard מלא" — "בנה קודם את Sheet הגלם, ואז נעבור ל-KPIs, ואחר כך לגרפים". כל שלב נבדק לפני השלב הבא. המדריך של Anthropic קורא לזה "agentic loops" — לולאות קצרות שאתם שולטים בהן.</span>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border2);border-right:4px solid var(--green);border-radius:10px;padding:16px 20px;">
+        <strong style="color:var(--text);display:block;margin-bottom:6px;">כשמשהו לא עובד — אל תמשיכו לדחוף</strong>
+        <span style="color:var(--text-dim);font-size:.93rem;">אם Claude חוזר על אותה שגיאה פעמיים — עצרו, נקו את ה-context עם <code>/clear</code>, והתחילו עם תיאור אחר. גישה שונה לעיתים קרובות פותרת יותר מאשר ניסיון חוזר.</span>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border2);border-right:4px solid var(--green);border-radius:10px;padding:16px 20px;">
+        <strong style="color:var(--text);display:block;margin-bottom:6px;">שמרו פרומפטים שעבדו</strong>
+        <span style="color:var(--text-dim);font-size:.93rem;">כשפרומפט מייצר תוצאה מצוינת — שמרו אותו (בדיוק כפי שהוא) בקובץ <code>core.md</code>. לאורך זמן תצברו ספריית פרומפטים מנוסים שחוסכת שעות של ניסוח מחדש.</span>
+      </div>
+    </div>
+
+    <hr class="divider" style="margin:32px 0;" />
+
+    <!-- ===== 5.6 ECOSYSTEM GLOSSARY ===== -->
+    <h3>מילון המערכת — MCP, Plugin, Skill, Hook, Tool, API, CLI</h3>
+    <p style="color:var(--text-dim);font-size:.95rem;margin-bottom:20px;">
+      כשמתחילים לעבוד עם Claude Code מתקדם נתקלים במושגים רבים. הנה מה שכל אחד מהם עושה:
+    </p>
+
+    <style>
+      .glossary-grid { display: grid; gap: 14px; margin-bottom: 24px; }
+      .glossary-card {
+        background: var(--surface);
+        border: 1px solid var(--border2);
+        border-radius: 12px;
+        padding: 18px 20px;
+      }
+      .glossary-card-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 10px;
+      }
+      .glossary-tag {
+        background: rgba(34,197,94,0.12);
+        border: 1px solid rgba(34,197,94,0.3);
+        color: var(--green);
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        padding: 3px 10px;
+        border-radius: 6px;
+        flex-shrink: 0;
+      }
+      .glossary-tag.blue {
+        background: rgba(59,130,246,0.12);
+        border-color: rgba(59,130,246,0.3);
+        color: var(--blue);
+      }
+      .glossary-tag.yellow {
+        background: rgba(249,168,37,0.12);
+        border-color: rgba(249,168,37,0.3);
+        color: var(--yellow);
+      }
+      .glossary-tag.red {
+        background: rgba(239,68,68,0.12);
+        border-color: rgba(239,68,68,0.3);
+        color: var(--red);
+      }
+      .glossary-name {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: var(--text);
+      }
+      .glossary-def {
+        color: var(--text-dim);
+        font-size: .93rem;
+        line-height: 1.7;
+        margin-bottom: 8px;
+      }
+      .glossary-example {
+        background: var(--code-bg);
+        border: 1px solid var(--border2);
+        border-radius: 7px;
+        padding: 8px 12px;
+        font-size: 0.82rem;
+        color: #a8d8ea;
+        direction: ltr;
+        text-align: left;
+        font-family: 'Consolas', monospace;
+      }
+      .glossary-when {
+        margin-top: 8px;
+        font-size: .88rem;
+        color: var(--text-faint);
+      }
+      .glossary-when strong { color: var(--text-dim); }
+    </style>
+
+    <div class="glossary-grid">
+
+      <div class="glossary-card">
+        <div class="glossary-card-header">
+          <div class="glossary-tag">CLI</div>
+          <div class="glossary-name">CLI — Command Line Interface</div>
+        </div>
+        <div class="glossary-def">
+          <strong style="color:var(--text);">מה זה:</strong> Claude Code עצמו — הממשק שרצים בטרמינל. אתם כותבים פקודות (<code>claude</code>, <code>/help</code>, וכו׳) והוא מגיב.
+        </div>
+        <div class="glossary-example">$ claude          # פתיחה
+$ claude "תסביר את main.py"   # עם הנחיה ישירה
+$ claude --version</div>
+        <div class="glossary-when"><strong>מתי:</strong> תמיד — זה הבסיס של הכל.</div>
+      </div>
+
+      <div class="glossary-card">
+        <div class="glossary-card-header">
+          <div class="glossary-tag blue">API</div>
+          <div class="glossary-name">API — Anthropic API</div>
+        </div>
+        <div class="glossary-def">
+          <strong style="color:var(--text);">מה זה:</strong> הדרך לגשת ל-Claude מקוד — לא מהטרמינל. מפתחים כותבים אפליקציות שמשתמשות ב-Claude דרך HTTP requests. לא רלוונטי לשימוש יומיומי בClaude Code.
+        </div>
+        <div class="glossary-example">fetch("https://api.anthropic.com/v1/messages", {
+  headers: { "x-api-key": process.env.ANTHROPIC_API_KEY },
+  body: JSON.stringify({ model: "claude-sonnet-4-5", ... })
+})</div>
+        <div class="glossary-when"><strong>מתי:</strong> כשבונים מוצר/אפליקציה שמשתמשת ב-Claude — לא לשימוש ידני.</div>
+      </div>
+
+      <div class="glossary-card">
+        <div class="glossary-card-header">
+          <div class="glossary-tag yellow">Tool</div>
+          <div class="glossary-name">Tool — כלי מובנה</div>
+        </div>
+        <div class="glossary-def">
+          <strong style="color:var(--text);">מה זה:</strong> פעולות שClaude יכול לבצע — קריאת קבצים, כתיבה, הרצת פקודות, חיפוש בקוד. אלה <strong>יכולות פנימיות</strong> שClaude Code מגיע איתן. אתם לא מתקינים אותן — הן כבר שם.
+        </div>
+        <div class="glossary-example">Read file: src/report.py       # קריאת קובץ
+Edit file: src/report.py       # עריכת קובץ
+Bash: python src/report.py     # הרצת פקודה
+Grep: search for "def clean"   # חיפוש בקוד</div>
+        <div class="glossary-when"><strong>מתי:</strong> Claude משתמש בהם אוטומטית כשצריך — אתם רק רואים אותם בפעולה.</div>
+      </div>
+
+      <div class="glossary-card">
+        <div class="glossary-card-header">
+          <div class="glossary-tag red">Hook</div>
+          <div class="glossary-name">Hook — אוטומציה על אירועים</div>
+        </div>
+        <div class="glossary-def">
+          <strong style="color:var(--text);">מה זה:</strong> פקודות shell שרצות אוטומטית בתגובה לאירועים בתוך Claude Code. מוגדרים ב-<code>settings.json</code>. לדוגמה: "בכל פעם שClaude פותח session — הזרק את קובץ ההקשר". זה מה שמפעיל את המדריך הזה!
+        </div>
+        <div class="glossary-example">// settings.json
+"SessionStart": [{
+  "type": "command",
+  "command": "node inject-context.mjs"
+}],
+"PreToolUse": [{ "matcher": "Edit", "hooks": [...] }],
+"PostToolUse": [...],
+"Stop": [...]</div>
+        <div class="glossary-when"><strong>מתי:</strong> אוטומציות חוזרות, הזרקת הקשר, לוגים, בדיקות. דורש הגדרה ב-settings.</div>
+      </div>
+
+      <div class="glossary-card">
+        <div class="glossary-card-header">
+          <div class="glossary-tag">Skill</div>
+          <div class="glossary-name">Skill — חבילת מומחיות</div>
+        </div>
+        <div class="glossary-def">
+          <strong style="color:var(--text);">מה זה:</strong> חבילת הוראות מוכנה מראש שמזריקה מומחיות לClaude. כשClaude Code מגיע עם Plugin (ראו הבא), כל Skill מכיל קובץ SKILL.md עם ידע מעמיק על נושא מסוים — ומוזרק אוטומטית כשצריך.
+        </div>
+        <div class="glossary-example">/vercel:ai-sdk        # מומחיות Vercel AI SDK
+/vercel:nextjs        # מומחיות Next.js
+/frontend-design      # עיצוב ממשקים
+/simplify             # סקירת קוד ושיפור</div>
+        <div class="glossary-when"><strong>מתי:</strong> להפעיל מומחיות ספציפית. לרוב — נטענים אוטומטית על ידי Plugin כשרלוונטי.</div>
+      </div>
+
+      <div class="glossary-card">
+        <div class="glossary-card-header">
+          <div class="glossary-tag blue">Plugin</div>
+          <div class="glossary-name">Plugin — תוסף לClaude Code</div>
+        </div>
+        <div class="glossary-def">
+          <strong style="color:var(--text);">מה זה:</strong> חבילה של Skills + Hooks + הגדרות שמרחיבה את יכולות Claude Code. Plugin מותקן ברמת הסביבה ומשנה איך Claude מתנהג — מה הוא יודע, מה הוא בודק, מה הוא מזריק אוטומטית.
+          לדוגמה: "Vercel Plugin" מוסיף לClaude ידע על כל מוצרי Vercel ומזריק אותו אוטומטית כשעובדים על פרויקטי Next.js.
+        </div>
+        <div class="glossary-example"># התקנת plugin (דוגמה)
+claude plugin install @vercel/plugin
+
+# plugin מוסיף אוטומטית:
+# - Skills: vercel:ai-sdk, vercel:nextjs, vercel:auth...
+# - Hooks: SessionStart, PreToolUse
+# - הקשר מומחיות לכל session</div>
+        <div class="glossary-when"><strong>מתי:</strong> כשרוצים להרחיב את Claude Code לתחום ספציפי. מותקן פעם אחת ועובד לתמיד.</div>
+      </div>
+
+      <div class="glossary-card">
+        <div class="glossary-card-header">
+          <div class="glossary-tag yellow">MCP</div>
+          <div class="glossary-name">MCP — Model Context Protocol</div>
+        </div>
+        <div class="glossary-def">
+          <strong style="color:var(--text);">מה זה:</strong> תקן פתוח שמחבר Claude לשירותים חיצוניים. MCP Server הוא שרת חיצוני שחושף "כלים" שClaude יכול לקרוא — בדיוק כמו Tools מובנים, אבל מחוץ לClaude Code. דרך MCP, Claude יכול לשאול Vercel "מה מצב ה-deployments שלי?" או לשלוח slack message.
+        </div>
+        <div class="glossary-example"># הוספת MCP Server לClaude Code
+claude mcp add vercel https://mcp.vercel.com
+
+# Claude עכשיו יכול:
+# - לקרוא logs מ-Vercel
+# - לבדוק deployments
+# - לנהל env vars
+
+# MCPs נפוצים:
+# - Vercel MCP (deployments, logs)
+# - GitHub MCP (issues, PRs)
+# - Playwright MCP (browser automation)</div>
+        <div class="glossary-when"><strong>מתי:</strong> כשרוצים שClaude יגיע למידע חי מחוץ לפרויקט — שירותי ענן, APIs, מערכות ניהול.</div>
+      </div>
+
+    </div>
+
+    <!-- COMPARISON TABLE -->
+    <h4>טבלת השוואה מהירה</h4>
+    <div style="overflow-x:auto;margin-bottom:24px;">
+      <table style="width:100%;border-collapse:collapse;font-size:.88rem;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border2);">
+            <th style="padding:10px 14px;text-align:right;color:var(--text-dim);font-weight:700;">שם</th>
+            <th style="padding:10px 14px;text-align:right;color:var(--text-dim);font-weight:700;">מי מפעיל?</th>
+            <th style="padding:10px 14px;text-align:right;color:var(--text-dim);font-weight:700;">מה זה עושה?</th>
+            <th style="padding:10px 14px;text-align:right;color:var(--text-dim);font-weight:700;">צריך התקנה?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:10px 14px;color:var(--green);font-weight:700;">CLI</td>
+            <td style="padding:10px 14px;color:var(--text-dim);">אתם</td>
+            <td style="padding:10px 14px;color:var(--text-dim);">ממשק הטרמינל — הבסיס</td>
+            <td style="padding:10px 14px;color:var(--text-dim);">✓ שלב 3</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:10px 14px;color:var(--blue);font-weight:700;">API</td>
+            <td style="padding:10px 14px;color:var(--text-dim);">קוד/מפתחים</td>
+            <td style="padding:10px 14px;color:var(--text-dim);">גישה לClaude מתוך אפליקציה</td>
+            <td style="padding:10px 14px;color:var(--text-dim);">API Key</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:10px 14px;color:var(--yellow);font-weight:700;">Tool</td>
+            <td style="padding:10px 14px;color:var(--text-dim);">Claude אוטומטית</td>
+            <td style="padding:10px 14px;color:var(--text-dim);">קריאה/כתיבת קבצים, הרצת פקודות</td>
+            <td style="padding:10px 14px;color:var(--text-dim);">לא — מובנה</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:10px 14px;color:var(--red);font-weight:700;">Hook</td>
+            <td style="padding:10px 14px;color:var(--text-dim);">אוטומטי על אירועים</td>
+            <td style="padding:10px 14px;color:var(--text-dim);">פקודה שרצה בתגובה לאירוע</td>
+            <td style="padding:10px 14px;color:var(--text-dim);">settings.json</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:10px 14px;color:var(--green);font-weight:700;">Skill</td>
+            <td style="padding:10px 14px;color:var(--text-dim);">אתם / Plugin</td>
+            <td style="padding:10px 14px;color:var(--text-dim);">מזריק מומחיות לתחום ספציפי</td>
+            <td style="padding:10px 14px;color:var(--text-dim);">חלק מ-Plugin</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:10px 14px;color:var(--blue);font-weight:700;">Plugin</td>
+            <td style="padding:10px 14px;color:var(--text-dim);">פעם אחת ועובד</td>
+            <td style="padding:10px 14px;color:var(--text-dim);">חבילת Skills+Hooks — מרחיב Claude Code</td>
+            <td style="padding:10px 14px;color:var(--text-dim);">התקנה חד-פעמית</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 14px;color:var(--yellow);font-weight:700;">MCP</td>
+            <td style="padding:10px 14px;color:var(--text-dim);">Claude דרך פקודה</td>
+            <td style="padding:10px 14px;color:var(--text-dim);">חיבור לשירותים חיצוניים (Vercel, GitHub...)</td>
+            <td style="padding:10px 14px;color:var(--text-dim);">claude mcp add</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alert alert-info">
+      <span class="alert-icon">💡</span>
+      <div class="alert-body">
+        <strong>קשר בין המושגים:</strong> Plugin = חבילה של Skills + Hooks. MCP = כלי חיצוני שClaude קורא. Tool = כלי פנימי שClaude משתמש בו. בשימוש יומיומי — אתם לרוב רק מדברים עם ה-CLI, וכל השאר עובד מאחורי הקלעים.
+      </div>
+    </div>
+
+  </section>
+
+</div>
+
+<!-- JAVASCRIPT -->
+<script>
+  // ===== OS TOGGLE =====
+  function setOS(os) {
+    document.body.className = 'os-' + os;
+    document.getElementById('btn-mac').classList.toggle('active', os === 'mac');
+    document.getElementById('btn-win').classList.toggle('active', os === 'win');
+    localStorage.setItem('cc-os', os);
+  }
+
+  (function () {
+    const saved = localStorage.getItem('cc-os');
+    if (saved) { setOS(saved); }
+    else {
+      const isMac = navigator.platform.toUpperCase().includes('MAC');
+      setOS(isMac ? 'mac' : 'win');
+    }
+  })();
+
+  // ===== COPY TO CLIPBOARD =====
+  function copyCode(btn) {
+    const block = btn.nextElementSibling;
+    const text = block.innerText;
+    navigator.clipboard.writeText(text).then(function () {
+      const orig = btn.innerText;
+      btn.innerText = 'הועתק!';
+      btn.classList.add('copied');
+      setTimeout(function () {
+        btn.innerText = orig;
+        btn.classList.remove('copied');
+      }, 1800);
+    });
+  }
+
+  // ===== PROGRESS BAR =====
+  function scrollToStep(n) {
+    const el = document.getElementById('step-' + n);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function updateProgress() {
+    const steps = [1, 2, 3, 4, 5];
+    const offsets = steps.map(n => {
+      const el = document.getElementById('step-' + n);
+      return el ? el.getBoundingClientRect().top : 9999;
+    });
+    const progressSteps = document.querySelectorAll('.progress-step');
+    let activeIdx = 0;
+    offsets.forEach((top, i) => { if (top < 120) activeIdx = i; });
+    progressSteps.forEach((s, i) => {
+      s.classList.remove('active', 'completed');
+      if (i < activeIdx) s.classList.add('completed');
+      else if (i === activeIdx) s.classList.add('active');
+    });
+  }
+
+  window.addEventListener('scroll', updateProgress, { passive: true });
+
+  // ===== CHECKLIST =====
+  function toggleCheck(item) {
+    item.classList.toggle('checked');
+    const all = document.querySelectorAll('.check-item');
+    const allDone = Array.from(all).every(i => i.classList.contains('checked'));
+    document.getElementById('completion-banner').style.display = allDone ? 'block' : 'none';
+  }
+
+  // ===== FAQ =====
+  function toggleFaq(btn) {
+    const item = btn.closest('.faq-item');
+    item.classList.toggle('open');
+  }
+</script>
+
+</body>
+</html>
