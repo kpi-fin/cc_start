@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Markdown Viewer</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #0b0f14;
+      color: #eee;
+      padding: 40px;
+      max-width: 900px;
+      margin: auto;
+      line-height: 1.6;
+    }
+
+    h1, h2, h3 { color: #22c55e; }
+
+    pre {
+      background: #111;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+
+    code {
+      color: #22c55e;
+    }
+
+    a { color: #3b82f6; }
+  </style>
+</head>
+
+<body>
+
+<div id="content">Loading...</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const file = params.get("file");
+
+fetch(file)
+  .then(res => res.text())
+  .then(md => {
+    document.getElementById("content").innerHTML = marked.parse(md);
+  });
+</script>
+
+</body>
+</html>
