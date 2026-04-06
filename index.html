@@ -19,7 +19,7 @@
     }
 
     .container {
-      max-width: 900px;
+      max-width: 1100px;
       padding: 60px 20px;
       text-align: center;
     }
@@ -69,6 +69,13 @@
       transition: 0.25s;
       text-decoration: none;
       color: white;
+    
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    
+      min-height: 160px; /* 👈 KEY FIX */
     }
 
     .card:hover {
@@ -130,55 +137,43 @@
 
   <div class="grid">
 
-    <!-- USER GUIDE -->    
-    <a href="user_guide.html" class="card">
-      <a href="index.html" class="back-floating">←</a>
-      <div class="icon">📘</div>
-      <div class="title">User Guide</div>
-      <div class="desc">Installation & working guide</div>
-    </a>
+  <a href="user_guide.html" class="card">
+    <div class="icon">📘</div>
+    <div class="title">User Guide</div>
+    <div class="desc">Installation & working guide</div>
+  </a>
 
-    <!-- GAMMA -->
-    <a href="https://gamma.app/docs/Agenda-17u1pxsbzq9d1ho?mode=present#card-pohlveb0pmnolwi" target="_blank" class="card">
-      <a href="index.html" class="back-floating">←</a>
-      <div class="icon">📊</div>
-      <div class="title">CC Presentation</div>
-      <div class="desc">How to Start & Basic concepts</div>
-    </a>
+  <a href="https://gamma.app/docs/Agenda-17u1pxsbzq9d1ho?mode=present#card-pohlveb0pmnolwi" target="_blank" class="card">
+    <div class="icon">📊</div>
+    <div class="title">CC Presentation</div>
+    <div class="desc">How to Start & Basic concepts</div>
+  </a>
 
-    <!-- YOUTUBE -->
-    <a href="https://youtube.com/watch?v=hcw9xnkmPlA&list=PLkpyF7rPk7" target="_blank" class="card">
-      <a href="index.html" class="back-floating">←</a>
-      <div class="icon">🎥</div>
-      <div class="title">Ram Kedem Video Tutorial</div>
-      <div class="desc">Watch walkthrough</div>
-    </a>
+  <a href="https://youtube.com/watch?v=hcw9xnkmPlA&list=PLkpyF7rPk7" target="_blank" class="card">
+    <div class="icon">🎥</div>
+    <div class="title">Ram Kedem Video Tutorial</div>
+    <div class="desc">Watch walkthrough</div>
+  </a>
 
-    <!-- Claude.md example -->
-    <a href="md-viewer.html?file=claude.md" class="card">
-      <a href="index.html" class="back-floating">←</a>
-      <div class="icon">🧠</div>
-      <div class="title">Claude Config</div>
-      <div class="desc">View markdown instructions</div>
-    </a>
+  <a href="md-viewer.html?file=CLAUDE.md" class="card">
+    <div class="icon">🧠</div>
+    <div class="title">Claude.md</div>
+    <div class="desc">View markdown instructions</div>
+  </a>
 
-     <!-- Core.md example -->
-    <a href="md-viewer.html?file=core.md" class="card">
-      <a href="index.html" class="back-floating">←</a>
-      <div class="icon">🧠</div>
-      <div class="title">Claude core functions and tools</div>
-      <div class="desc">View markdown instructions</div>
-    </a>
-    
-    <!-- FUTURE TOOL -->
-    <a href="#" class="card">
-      <a href="index.html" class="back-floating">←</a>
-      <div class="icon">⚙️</div>
-      <div class="title">Tools (Coming Soon)</div>
-      <div class="desc">Automation tools & apps</div>
-    </a>
+  <a href="md-viewer.html?file=core.md" class="card">
+    <div class="icon">🧠</div>
+    <div class="title">Claude Core Functions</div>
+    <div class="desc">View markdown instructions</div>
+  </a>
 
-  </div>
+  <a href="#" class="card">
+    <div class="icon">⚙️</div>
+    <div class="title">Tools (Coming Soon)</div>
+    <div class="desc">Automation tools & apps</div>
+  </a>
+
+</div>
 
   <footer>
     KPI-FIN © 2026
