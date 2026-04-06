@@ -42,10 +42,24 @@
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 900px;
+      margin: auto;
     }
 
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    @media (max-width: 500px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
     .card {
       background: #111827;
       border: 1px solid #1f2937;
@@ -84,6 +98,26 @@
       color: #666;
       font-size: 13px;
     }
+
+    .back-floating {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: #111827;
+      border: 1px solid #22c55e;
+      color: #22c55e;
+      padding: 10px 14px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 18px;
+      transition: 0.2s;
+    }
+    
+    .back-floating:hover {
+      background: #22c55e;
+      color: black;
+    }
+    
   </style>
 </head>
 
@@ -96,8 +130,9 @@
 
   <div class="grid">
 
-    <!-- USER GUIDE -->
+    <!-- USER GUIDE -->    
     <a href="user_guide.html" class="card">
+      <a href="index.html" class="back-floating">←</a>
       <div class="icon">📘</div>
       <div class="title">User Guide</div>
       <div class="desc">Installation & working guide</div>
@@ -105,6 +140,7 @@
 
     <!-- GAMMA -->
     <a href="https://gamma.app/docs/Agenda-17u1pxsbzq9d1ho?mode=present#card-pohlveb0pmnolwi" target="_blank" class="card">
+      <a href="index.html" class="back-floating">←</a>
       <div class="icon">📊</div>
       <div class="title">CC Presentation</div>
       <div class="desc">How to Start & Basic concepts</div>
@@ -112,6 +148,7 @@
 
     <!-- YOUTUBE -->
     <a href="https://youtube.com/watch?v=hcw9xnkmPlA&list=PLkpyF7rPk7" target="_blank" class="card">
+      <a href="index.html" class="back-floating">←</a>
       <div class="icon">🎥</div>
       <div class="title">Ram Kedem Video Tutorial</div>
       <div class="desc">Watch walkthrough</div>
@@ -119,6 +156,7 @@
 
     <!-- Claude.md example -->
     <a href="md-viewer.html?file=claude.md" class="card">
+      <a href="index.html" class="back-floating">←</a>
       <div class="icon">🧠</div>
       <div class="title">Claude Config</div>
       <div class="desc">View markdown instructions</div>
@@ -126,6 +164,7 @@
 
      <!-- Core.md example -->
     <a href="md-viewer.html?file=core.md" class="card">
+      <a href="index.html" class="back-floating">←</a>
       <div class="icon">🧠</div>
       <div class="title">Claude core functions and tools</div>
       <div class="desc">View markdown instructions</div>
@@ -133,6 +172,7 @@
     
     <!-- FUTURE TOOL -->
     <a href="#" class="card">
+      <a href="index.html" class="back-floating">←</a>
       <div class="icon">⚙️</div>
       <div class="title">Tools (Coming Soon)</div>
       <div class="desc">Automation tools & apps</div>
