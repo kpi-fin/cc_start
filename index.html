@@ -1,10 +1,136 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Claude Code KPI-FIN</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KPI-FIN Platform</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #0b0f14;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      max-width: 900px;
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 48px;
+      margin-bottom: 10px;
+      font-weight: 800;
+    }
+
+    h1 span {
+      color: #22c55e;
+    }
+
+    p {
+      color: #aaa;
+      margin-bottom: 40px;
+      font-size: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 16px;
+      padding: 30px 20px;
+      cursor: pointer;
+      transition: 0.25s;
+      text-decoration: none;
+      color: white;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      border-color: #22c55e;
+      box-shadow: 0 10px 30px rgba(34,197,94,0.2);
+    }
+
+    .icon {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .desc {
+      font-size: 14px;
+      color: #aaa;
+    }
+
+    footer {
+      margin-top: 60px;
+      color: #666;
+      font-size: 13px;
+    }
+  </style>
 </head>
+
 <body>
-    <h1>Hello 🔥 KPI-FIN</h1>
-    <p>This is Site for learning Claude Code!</p>
+
+<div class="container">
+
+  <h1>KPI<span>-FIN</span></h1>
+  <p>Your internal AI & automation platform</p>
+
+  <div class="grid">
+
+    <!-- USER GUIDE -->
+    <a href="user_guide.html" class="card">
+      <div class="icon">📘</div>
+      <div class="title">User Guide</div>
+      <div class="desc">Installation & working guide</div>
+    </a>
+
+    <!-- GAMMA -->
+    <a href="https://gamma.app/docs/Agenda-17u1pxsbzq9d1ho?mode=present#card-pohlveb0pmnolwi" target="_blank" class="card">
+      <div class="icon">📊</div>
+      <div class="title">Presentation</div>
+      <div class="desc">Project overview (Gamma)</div>
+    </a>
+
+    <!-- YOUTUBE -->
+    <a href="https://youtube.com/watch?v=hcw9xnkmPlA&list=PLkpyF7rPk7" target="_blank" class="card">
+      <div class="icon">🎥</div>
+      <div class="title">Ram Kedem Video Tutorial</div>
+      <div class="desc">Watch walkthrough</div>
+    </a>
+
+    <!-- FUTURE TOOL -->
+    <a href="#" class="card">
+      <div class="icon">⚙️</div>
+      <div class="title">Tools (Coming Soon)</div>
+      <div class="desc">Automation tools & apps</div>
+    </a>
+
+  </div>
+
+  <footer>
+    KPI-FIN © 2026
+  </footer>
+
+</div>
+
 </body>
 </html>
