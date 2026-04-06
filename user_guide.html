@@ -525,10 +525,33 @@
       .content { padding: 0 16px 60px; }
       .step-section h2 { font-size: 1.3rem; }
     }
+
+    .back-floating {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: #111827;
+      border: 1px solid #22c55e;
+      color: #22c55e;
+      padding: 10px 14px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 18px;
+      transition: 0.2s;
+      z-index: 1000;
+    }
+    
+    .back-floating:hover {
+      background: #22c55e;
+      color: black;
+    }
+      
   </style>
 </head>
 <body class="os-win">
 
+<a href="index.html" class="back-floating">←</a>
+  
 <!-- PROGRESS BAR -->
 <nav class="progress-bar" id="progress-bar">
   <div class="progress-step active" data-step="1" onclick="scrollToStep(1)">
